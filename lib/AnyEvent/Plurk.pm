@@ -1,6 +1,6 @@
 package AnyEvent::Plurk;
 
-our $VERSON = 0.01;
+our $VERSION = 0.01;
 
 use common::sense 2.02;
 use parent        0.223 "Object::Event";
