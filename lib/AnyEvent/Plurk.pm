@@ -1,10 +1,13 @@
 package AnyEvent::Plurk;
-use common::sense;
-use parent "Object::Event";
 
-use AnyEvent;
+our $VERSON = 0.01;
+
+use common::sense 2.02;
+use parent        0.223 "Object::Event";
+use AnyEvent   5.202;
+use Net::Plurk 0.000;
+
 use Carp "croak";
-use Net::Plurk;
 
 sub new {
    my $this  = shift;

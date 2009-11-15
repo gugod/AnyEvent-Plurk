@@ -1,6 +1,5 @@
 # -*- text -*-
-
-use inc::Module::Install::DSL;
+use inc::Module::Install::DSL 0.91;
 
 all_from       lib/AnyEvent/Plurk.pm
 requires_from  lib/AnyEvent/Plurk.pm
@@ -11,6 +10,3 @@ license        mit
 repository     http://github.com/gugod/AnyEvent-Plurk
 
 tests          t/*.t
-
-
-WriteAll
