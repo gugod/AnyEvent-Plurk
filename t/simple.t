@@ -19,6 +19,7 @@ $p->reg_cb(
     latest_owner_plurks => sub {
         my ($p, $plurks) = @_;
         pass("Received latest plurks");
+        is(ref($plurks), "ARRAY");
     }
 );
 
