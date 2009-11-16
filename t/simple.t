@@ -3,9 +3,10 @@ use common::sense;
 use Test::More;
 
 unless($ENV{TEST_ANYEVENT_PLURK}) {
-    plan skip_all => "define TEST_ANYEVENT_PLURK env to test.";
+    plan(skip_all => "define TEST_ANYEVENT_PLURK env to test.")
 }
 
+use AnyEvent;
 use AnyEvent::Plurk;
 
 my ($username,$password) = split(" ", $ENV{TEST_ANYEVENT_PLURK});
@@ -19,9 +20,11 @@ $p->reg_cb(
     unread_plurks => sub {
         my ($p, $plurks) = @_;
         is(ref($plurks), "ARRAY", "Received latest plurks");
+        done_testing;
+        exit;
     }
 );
 
+my $v = AE::cv;
 $p->start;
-
-done_testing;
+$v->recv;

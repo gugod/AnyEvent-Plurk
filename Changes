@@ -1,3 +1,7 @@
+0.03:
+- fix _tick mis-use of AE::timer, again.
+- update tests for the same reason.
+
 0.02:
 - fix _tick mis-use of AE::timer
 

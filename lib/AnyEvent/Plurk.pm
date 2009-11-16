@@ -1,5 +1,5 @@
 package AnyEvent::Plurk;
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 use 5.008;
 use common::sense 2.02;
@@ -43,7 +43,7 @@ sub _tick {
 
 sub start {
     my $self = shift;
-    $self->{_tick_timer} = AE::timer(1, 60, sub { $self->_tick });
+    $self->{_tick_timer} = AE::timer(0, 60, sub { $self->_tick });
 }
 
 1;
