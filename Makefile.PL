@@ -1,4 +1,3 @@
-# -*- text -*-
 use inc::Module::Install;
 
 all_from       'lib/AnyEvent/Plurk.pm';
