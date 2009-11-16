@@ -5,7 +5,7 @@ our $VERSION = 0.01;
 use common::sense 2.02;
 use parent        0.223 "Object::Event";
 use AnyEvent   5.202;
-use Net::Plurk 0.000;
+use Net::Plurk 1258308569;
 
 use Carp "croak";
 
