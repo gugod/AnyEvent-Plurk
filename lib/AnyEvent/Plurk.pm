@@ -1,5 +1,5 @@
 package AnyEvent::Plurk;
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 use 5.008;
 use common::sense 2.02;
@@ -40,12 +40,7 @@ sub _tick {
 
     $self->event("unread_plurks" => \@unread_plurks);
 
-    $self->{_tick_timer} = AE::timer(
-        0, 60, sub {
-            delete $self->{_tick_timer};
-            $self->_tick
-        }
-    );
+    AE::timer(60, 0, sub { $self->_tick });
 }
 
 sub start {
