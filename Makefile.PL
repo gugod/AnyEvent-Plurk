@@ -1,12 +1,18 @@
 # -*- text -*-
-use inc::Module::Install::DSL 0.91;
+use inc::Module::Install;
 
-all_from       lib/AnyEvent/Plurk.pm
-requires_from  lib/AnyEvent/Plurk.pm
+all_from       'lib/AnyEvent/Plurk.pm';
+requires_from  'lib/AnyEvent/Plurk.pm';
+readme_from    'lib/AnyEvent/Plurk.pm';
 
-build_requires Test::More 0.88
+build_requires 'Test::More' => "0.88";
 
-license        mit
-repository     http://github.com/gugod/AnyEvent-Plurk
+license        'mit';
+repository     'http://github.com/gugod/AnyEvent-Plurk';
 
-tests          t/*.t
+auto_include_deps;
+auto_install;
+
+tests          't/*.t';
+
+WriteAll;
