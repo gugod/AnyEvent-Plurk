@@ -39,13 +39,11 @@ sub _tick {
         @{$self->{_plurk}->get_unread_plurks()};
 
     $self->event("unread_plurks" => \@unread_plurks);
-
-    AE::timer(60, 0, sub { $self->_tick });
 }
 
 sub start {
     my $self = shift;
-    $self->_tick;
+    $self->{_tick_timer} = AE::timer(1, 60, sub { $self->_tick });
 }
 
 1;
