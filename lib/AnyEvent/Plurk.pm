@@ -33,24 +33,14 @@ sub new {
 sub _tick {
     my $self = shift;
 
-    my $plurks = $self->{_plurk}->get_owner_latest_plurks();
+    $self->event("unread_plurks" => $self->{_plurk}->get_unread_plurks());
 
-    my @new_plurks = ();
-    for my $i (0..$#$plurks) {
-        my $id = $plurks->[$i]->{id};
-
-        unless ($self->{_seen_plurk}{$id}) {
-            push @new_plurks, $plurks->[$i]
-        }
-
-        $self->{_seen_plurk}{$id} = 1;
-    }
-
-    $self->event("latest_owner_plurks" => \@new_plurks);
-
-    AnyEvent->timer(
+    $self->{_tick_timer} = AnyEvent->timer(
         after => 60,
-        cb    => sub { $self->_tick }
+        cb    => sub {
+            delete $self->{_tick_timer};
+            $self->_tick
+        }
     );
 }
 
