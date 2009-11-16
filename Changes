@@ -1,2 +1,5 @@
+0.02:
+- fix _tick mis-use of AE::timer
+
 0.01:
 - Implement "unread_plurks" event.
