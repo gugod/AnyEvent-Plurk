@@ -1,6 +1,7 @@
 package AnyEvent::Plurk;
 our $VERSION = "0.01";
 
+use 5.008;
 use common::sense 2.02;
 use parent        0.223 "Object::Event";
 use AnyEvent   5.202;
@@ -39,9 +40,8 @@ sub _tick {
 
     $self->event("unread_plurks" => \@unread_plurks);
 
-    $self->{_tick_timer} = AnyEvent->timer(
-        after => 60,
-        cb    => sub {
+    $self->{_tick_timer} = AE::timer(
+        0, 60, sub {
             delete $self->{_tick_timer};
             $self->_tick
         }
@@ -59,7 +59,7 @@ __END__
 
 =head1 NAME
 
-AnyEvent::Plurk - plurk interface for AE programs
+AnyEvent::Plurk - plurk interface for AnyEvent-based programs
 
 =head1 SYNOPSIS
 
