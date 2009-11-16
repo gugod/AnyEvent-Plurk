@@ -16,10 +16,9 @@ my $p = AnyEvent::Plurk->new(
 );
 
 $p->reg_cb(
-    latest_owner_plurks => sub {
+    unread_plurks => sub {
         my ($p, $plurks) = @_;
-        pass("Received latest plurks");
-        is(ref($plurks), "ARRAY");
+        is(ref($plurks), "ARRAY", "Received latest plurks");
     }
 );
 

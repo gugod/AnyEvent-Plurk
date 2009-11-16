@@ -33,7 +33,12 @@ sub new {
 sub _tick {
     my $self = shift;
 
-    $self->event("unread_plurks" => $self->{_plurk}->get_unread_plurks());
+    my @unread_plurks =
+        map  { $self->{_seen_plurk}{ $_->{id} } = 1; $_ }
+        grep { !$self->{_seen_plurk}{ $_->{id} } }
+        @{$self->{_plurk}->get_unread_plurks()};
+
+    $self->event("unread_plurks" => \@unread_plurks);
 
     $self->{_tick_timer} = AnyEvent->timer(
         after => 60,
