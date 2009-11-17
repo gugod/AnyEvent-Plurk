@@ -1,5 +1,5 @@
 package AnyEvent::Plurk;
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 use 5.008;
 use common::sense 2.02;
@@ -46,6 +46,21 @@ sub start {
     $self->{_tick_timer} = AE::timer(0, 60, sub { $self->_tick });
 }
 
+sub add_plurk {
+    my $self    = shift;
+    my $content = shift;
+
+    $self->{_plurk}->add_plurk(content => $content);
+}
+
+sub delete_plurk {
+    my $self = shift;
+    my $id   = shift;
+
+    $self->{_plurk}->delete_plurk($id);
+}
+
+
 1;
 
 __END__
@@ -66,8 +81,49 @@ AnyEvent::Plurk - plurk interface for AnyEvent-based programs
             is(ref($plurks), "ARRAY", "Received latest plurks");
         }
     );
-    $p->start;
 
+    my $v = AE::cv;
+    $p->start;
+    $v->recv;
+
+=head1 METHODS
+
+=over 4
+
+=item reg_cb( x => $cb, ...)
+
+Register a callback for event x. See below for the list of events.
+
+=item start
+
+Start polling plurk.com for plurks. In the current implementation, it
+only checks new plurks ever 60 seconds.
+
+=item add_plurk( $content )
+
+Add a new plurk with the given text C<$content>.
+
+=item delete_plurk( $id )
+
+Delete the plurk with the given plurk C<$id>.
+
+=back
+
+=head1 EVENTS
+
+=over 4
+
+=item unread_plurks
+
+Arguments to callback: ($self, $plurks)
+
+C<$self> is the C<AnyEvent::Plurk> object which emits this event, and
+C<$plurks> is the arrayref to the list of plurks just receieved.
+
+Each elements in C<$plurks> is a hashref. See L<Net::Plurk> for the
+explaination of the its keys.
+
+=back
 
 =head1 AUTHOR
 
