@@ -17,16 +17,12 @@ my $p = AnyEvent::Plurk->new(
     password => $password
 );
 
-$p->reg_cb(
-    unread_plurks => sub {
-        my ($p, $plurks) = @_;
-        is(ref($plurks), "ARRAY", "Received latest plurks");
+$p->login;
 
-        done_testing;
-        exit;
-    }
-);
+my $plurk = $p->add_plurk(rand ." $$ Lorem ipsum $$");
 
-my $v = AE::cv;
-$p->start;
-$v->recv;
+ok($plurk->{plurk_id} > 0);
+
+$p->delete_plurk($plurk->{plurk_id});
+
+done_testing;

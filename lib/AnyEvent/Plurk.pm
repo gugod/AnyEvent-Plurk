@@ -2,17 +2,64 @@ package AnyEvent::Plurk;
 our $VERSION = "0.04";
 
 use 5.008;
-use common::sense 2.02;
-use parent        0.223 "Object::Event";
-use AnyEvent   5.202;
-use Net::Plurk 1258308569;
+use common::sense    2.02;
+use parent           0.223 "Object::Event";
+
+use AnyEvent         5.202;
+use AnyEvent::HTTP   1.44;
+
+use JSON 2.15 qw(to_json from_json);
+use URI;
 
 use Carp "croak";
+use POSIX qw(strftime);
+
+# Sub
+sub current_time_offset() {
+    my @t = gmtime;
+    return strftime('%Y-%m-%dT%H:%M:%S', @t);
+}
+
+sub plurk_api_uri {
+    my ($x, %form) = @_;
+    $x = "/$x" unless  index($x, "/Users/") == 0;
+    my $u = URI->new("http://www.plurk.com");
+    $u->scheme("https") if index($x, "/Users/") == 0;
+    $u->path("/API$x");
+    $u->query_form(%form);
+    return $u
+}
+
+# Method
+sub send_request {
+    my ($self, $path, $form, $cb) = @_;
+    $form->{api_key} = $self->{api_key};
+
+    my $v = AE::cv;
+
+    my ($data, $header);
+    $self->{__current_request} = http_request(
+        GET => plurk_api_uri($path, %$form),
+        cookie_jar => $self->{__cookie_jar},
+        $cb || sub {
+            ($data, $header) = @_;
+            $data = from_json($data);
+            $v->send;
+        }
+    );
+
+    $v->recv if !$cb;
+    return wantarray ? ($data, $header) : $data;
+}
 
 sub new {
    my $this  = shift;
    my $class = ref($this) || $this;
    my $self  = $class->SUPER::new(@_);
+
+   unless (defined $self->{api_key}) {
+      croak "no 'apk_key' given to AnyEvent::Plurk\n";
+   }
 
    unless (defined $self->{username}) {
       croak "no 'username' given to AnyEvent::Plurk\n";
@@ -22,42 +69,66 @@ sub new {
       croak "no 'password' given to AnyEvent::Plurk\n";
    }
 
-   $self->{_plurk} = Net::Plurk->new;
-
-   $self->{_plurk}->login($self->{username}, $self->{password});
-   $self->{_seen_plurk} = {};
-
+   $self->{__cookie_jar} = {};
    return $self
 }
 
-sub _tick {
+sub login {
     my $self = shift;
+    my $cb   = shift;
 
-    my @unread_plurks =
-        map  { $self->{_seen_plurk}{ $_->{id} } = 1; $_ }
-        grep { !$self->{_seen_plurk}{ $_->{id} } }
-        @{$self->{_plurk}->get_unread_plurks()};
+    $self->send_request(
+        "Users/login", {
+            username => $self->{username},
+            password => $self->{password}
+        }
+    )
+}
 
-    $self->event("unread_plurks" => \@unread_plurks);
+sub _start_polling {
+    my $self = shift;
+    # Assumed login.
+
+    $self->send_request(
+        "Timeline/getUnreadPlurks",
+        {},
+        sub {
+            my ($data, $header) = @_;
+            if ($header->{Status} == 400) {
+                say $data;
+            }
+            else {
+                my $unread_plurks = from_json($data)->{plurks};
+                $self->event("unread_plurks" => $unread_plurks);
+            }
+
+            $self->{__polling_timer} = AE::timer 60, 0, sub {
+                undef $self->{__polling_timer};
+                $self->start_polling;
+            }
+        }
+    );
 }
 
 sub start {
     my $self = shift;
-    $self->{_tick_timer} = AE::timer(0, 60, sub { $self->_tick });
+
+    $self->login;
+    $self->_start_polling;
 }
 
 sub add_plurk {
     my $self    = shift;
     my $content = shift;
 
-    $self->{_plurk}->add_plurk(content => $content);
+    $self->send_request("Timeline/plurkAdd", {qualifier => ":", content => $content});
 }
 
 sub delete_plurk {
     my $self = shift;
     my $id   = shift;
 
-    $self->{_plurk}->delete_plurk($id);
+    $self->send_request("Timeline/plurkDelete", {plurk_id => $id});
 }
 
 
