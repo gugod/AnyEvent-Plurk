@@ -58,7 +58,7 @@ sub new {
    my $self  = $class->SUPER::new(@_);
 
    unless (defined $self->{api_key}) {
-      croak "no 'apk_key' given to AnyEvent::Plurk\n";
+      croak "no 'api_key' given to AnyEvent::Plurk\n";
    }
 
    unless (defined $self->{username}) {
@@ -87,7 +87,6 @@ sub login {
 
 sub _start_polling {
     my $self = shift;
-    # Assumed login.
 
     $self->send_request(
         "Timeline/getUnreadPlurks",
@@ -104,7 +103,7 @@ sub _start_polling {
 
             $self->{__polling_timer} = AE::timer 60, 0, sub {
                 undef $self->{__polling_timer};
-                $self->start_polling;
+                $self->_start_polling;
             }
         }
     );
