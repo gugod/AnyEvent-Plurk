@@ -97,7 +97,14 @@ sub _start_polling {
                 say $data;
             }
             else {
-                my $unread_plurks = from_json($data)->{plurks};
+                $data = from_json($data);
+                my $unread_plurks = $data->{plurks};
+
+                my $users = $data->{plurk_users};
+                for my $pu (@$unread_plurks) {
+                    $pu->{owner} = $users->{$pu->{owner_id}} if $users->{$pu->{owner_id}};
+                }
+
                 $self->event("unread_plurks" => $unread_plurks);
             }
 

@@ -22,6 +22,10 @@ $p->reg_cb(
         my ($p, $plurks) = @_;
         is(ref($plurks), "ARRAY", "Received latest plurks");
 
+        for my $pu (@$plurks) {
+            is(ref($pu->{owner}), "HASH");
+        }
+
         done_testing;
         exit;
     }
