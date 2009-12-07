@@ -1,3 +1,6 @@
+0.10:
+- Re-implemented with the official Plurk API
+
 0.04:
 - fix dependency
 

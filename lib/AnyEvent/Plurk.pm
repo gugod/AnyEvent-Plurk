@@ -1,5 +1,5 @@
 package AnyEvent::Plurk;
-our $VERSION = "0.04";
+our $VERSION = "0.10";
 
 use 5.008;
 use common::sense    2.02;
